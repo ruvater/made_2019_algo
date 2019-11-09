@@ -1,12 +1,19 @@
 #include <iostream>
 
+// Даны неотрицательные целые числа n,k и массив целых чисел из [0..10^9] размера n.
+// Требуется найти k-ю порядковую статистику. т.е. напечатать число, которое бы стояло на позиции с индексом k (0..n-1)
+// в отсортированном массиве.
+// Напишите нерекурсивный алгоритм.
+// Требования к дополнительной памяти: O(n). Требуемое среднее время работы: O(n).
+
 void swap(int *a, int *b) {
     int temp = *a;
     *a = *b;
     *b = temp;
 }
 
-void PrintArray(int *a, int left, int right, int left_boundary, int right_boundary) {
+template<typename T>
+void PrintArray(T *a, int left, int right, int left_boundary, int right_boundary) {
     for (int i = left; i <= right; i++) {
         if (i == left_boundary) std::cout << "[";
         std::cout << a[i];
@@ -17,24 +24,26 @@ void PrintArray(int *a, int left, int right, int left_boundary, int right_bounda
     std::cout << std::endl;
 }
 
-void SetPivot(int *a, int left, int right) {
+template<typename T, class Comparator>
+void SetPivot(T *a, int left, int right, Comparator comp) {
     int mid = (left + right) / 2;
 
     // Lowest to the beginning
-    if (a[mid] < a[left]) {
+    if (comp(a[mid], a[left])) {
         swap(&a[mid], &a[left]);
     }
-    if (a[right] < a[left]) {
+    if (comp(a[right], a[left])) {
         swap(&a[right], &a[left]);
     }
 
     // Median to the end
-    if (a[mid] < a[right]) {
+    if (comp(a[mid], a[right])) {
         swap(&a[mid], &a[right]);
     }
 }
 
-int Partition(int *a, int left, int right) {
+template<typename T, class Comparator>
+int Partition(T *a, int left, int right, Comparator comp) {
     if (left == right) {
         return right;
     }
@@ -42,7 +51,7 @@ int Partition(int *a, int left, int right) {
     int i = right - 1;
     for (int j = right - 1; j >= left; j--) {
         //PrintArray(a, left, right, j, i);
-        if (a[j] > a[right]) {
+        if (comp(a[right], a[j])) {
             if (i != j) {
                 swap(&a[i], &a[j]);
             }
@@ -56,14 +65,15 @@ int Partition(int *a, int left, int right) {
     return i + 1;
 }
 
-int KthSmallest(int *a, int n, int k) {
+template<typename T, class Comparator>
+int KthSmallest(T *a, int n, int k, Comparator comp) {
     int pivot;
     int left = 0;
     int right = n - 1;
     while (true) {
         // std::cout << "Finding: " << k << std::endl;
-        SetPivot(a, left, right);
-        pivot = Partition(a, left, right);
+        SetPivot(a, left, right, comp);
+        pivot = Partition(a, left, right, comp);
         //std::cout << pivot - left << std::endl;
 
         if (pivot - left == k) {
@@ -92,7 +102,9 @@ int main() {
         std::cin >> a[i];
     }
 
-    std::cout << KthSmallest(a, n, k);
+    std::cout << KthSmallest(a, n, k, [] (const auto& first, const auto& last) {
+        return first < last;
+    });
 
     return 0;
 }
