@@ -1,5 +1,6 @@
 #include <iostream>
 #include <queue>
+#include <functional>
 #include <utility>
 
 // 6_4
@@ -29,7 +30,7 @@ public:
 
             TreeNode *next_node = to_left ? current_node->left : current_node->right;
             if (next_node == nullptr) {
-                next_node = new TreeNode<T>(new_element, comp);
+                next_node = new TreeNode<T>(new_element, this->comp);
                 if (to_left) {
                     current_node->left = next_node;
                 } else {
